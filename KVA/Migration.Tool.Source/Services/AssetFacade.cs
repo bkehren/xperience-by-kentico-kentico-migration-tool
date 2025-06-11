@@ -4,6 +4,7 @@ using CMS.ContentEngine;
 using CMS.ContentEngine.Internal;
 using CMS.Core;
 using CMS.DataEngine;
+using CMS.Helpers;
 using Kentico.Xperience.UMT.Model;
 using Kentico.Xperience.UMT.Services;
 using Microsoft.Extensions.Logging;
@@ -66,6 +67,8 @@ public class AssetFacade(
         IProtocol protocol
         ) : IAssetFacade
 {
+    private const int ColumnSize_ContentItemLanguageMetadataDisplayName = 100;
+
     public string DefaultContentLanguage
     {
         get
@@ -113,7 +116,7 @@ public class AssetFacade(
         languageData.AddRange(contentLanguageNames.Select(contentLanguageName => new ContentItemLanguageData
         {
             LanguageName = contentLanguageName,
-            DisplayName = mediaFile.FileName,
+            DisplayName = mediaFile.FileName.Truncate(ColumnSize_ContentItemLanguageMetadataDisplayName),
             UserGuid = createdByUser?.UserGUID,
             VersionStatus = VersionStatus.Published,
             ContentItemData = new Dictionary<string, object?>
@@ -127,7 +130,9 @@ public class AssetFacade(
                     Size = null,
                     LastModified = null,
                     FilePath = mediaFilePath
-                }
+                },
+                [LegacyMediaFileTitleField.Column!] = mediaFile.FileTitle,
+                [LegacyMediaFileDescriptionField.Column!] = mediaFile.FileDescription,
             }
         }));
 
@@ -167,7 +172,7 @@ public class AssetFacade(
             var contentLanguageData = new ContentItemLanguageData
             {
                 LanguageName = contentLanguageName,
-                DisplayName = attachment.AttachmentName,
+                DisplayName = attachment.AttachmentName.Truncate(ColumnSize_ContentItemLanguageMetadataDisplayName),
                 UserGuid = null,
                 VersionStatus = VersionStatus.Published,
                 ContentItemData = new Dictionary<string, object?>
@@ -320,6 +325,33 @@ public class AssetFacade(
         Properties = new FormFieldProperties { FieldCaption = "Asset", },
         Settings = new FormFieldSettings { CustomProperties = new Dictionary<string, object?> { { "AllowedExtensions", "_INHERITED_" } }, ControlName = "Kentico.Administration.ContentItemAssetUploader" }
     };
+
+    internal static readonly FormField LegacyMediaFileTitleField = new()
+    {
+        Column = "LegacyMediaFileTitle",
+        ColumnType = "text",
+        ColumnSize = 250,
+        AllowEmpty = true,
+        Visible = true,
+        Enabled = true,
+        Guid = new Guid("83650744-916B-4E19-A31F-B0250166D47D"),
+        Properties = new FormFieldProperties { FieldCaption = "Title", },
+        Settings = new FormFieldSettings { ControlName = "Kentico.Administration.TextInput" }
+    };
+
+    internal static readonly FormField LegacyMediaFileDescriptionField = new()
+    {
+        Column = "LegacyMediaFileDescription",
+        ColumnType = "longtext",
+        AllowEmpty = true,
+        Visible = true,
+        Enabled = true,
+        ColumnSize = FieldConstants.LongTextMaxColumnSize,
+        Guid = new Guid("98F43915-B540-478D-80A4-E294E631C431"),
+        Properties = new FormFieldProperties { FieldCaption = "Description", },
+        Settings = new FormFieldSettings { ControlName = "Kentico.Administration.TextArea" }
+    };
+
     public static readonly DataClassModel LegacyMediaFileContentType = new()
     {
         ClassName = "Legacy.MediaFile",
@@ -333,7 +365,9 @@ public class AssetFacade(
         ClassWebPageHasUrl = false,
         Fields =
             [
-                    LegacyMediaFileAssetField
+                LegacyMediaFileAssetField,
+                LegacyMediaFileTitleField,
+                LegacyMediaFileDescriptionField
             ]
     };
 

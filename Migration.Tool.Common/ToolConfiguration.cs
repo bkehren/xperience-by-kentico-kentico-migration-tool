@@ -61,6 +61,9 @@ public class ToolConfiguration
     [ConfigurationKeyName(ConfigurationNames.ConvertClassesToContentHub)]
     public string? ConvertClassesToContentHub { get; set; }
 
+    [ConfigurationKeyName(ConfigurationNames.CustomModuleClassDisplayNamePatterns)]
+    public Dictionary<string, string>? CustomModuleClassDisplayNamePatterns { get; set; }
+
     public IReadOnlySet<string> ClassNamesCreateReusableSchema => classNamesCreateReusableSchema ??= new HashSet<string>(
         (CreateReusableFieldSchemaForClasses?.Split(new[] { ',', ';', '|' }, StringSplitOptions.RemoveEmptyEntries) ?? []).Select(x => x.Trim()),
         StringComparer.InvariantCultureIgnoreCase
@@ -93,7 +96,9 @@ public class ToolConfiguration
 
     #region Connection string of target instance
 
+#pragma warning disable CS0618 // Type or member is obsolete
     [ConfigurationKeyName(ConfigurationNames.XbKConnectionString)]
+#pragma warning restore CS0618 // Type or member is obsolete
     public string XbKConnectionString
     {
         get => xbkConnectionString!;
@@ -116,7 +121,9 @@ public class ToolConfiguration
     private HashSet<string>? classNamesCreateReusableSchema;
     private string? xbkConnectionString;
 
+#pragma warning disable CS0618 // Type or member is obsolete
     [ConfigurationKeyName(ConfigurationNames.XbKDirPath)]
+#pragma warning restore CS0618 // Type or member is obsolete
     public string? XbKDirPath { get; set; } = null;
 
     [ConfigurationKeyName(ConfigurationNames.XbyKDirPath)]

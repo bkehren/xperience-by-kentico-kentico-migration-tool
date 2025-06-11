@@ -22,6 +22,8 @@ public static class ServiceCollectionExtensions
         // services.AddSimpleRemodelingSample();
         // services.AddReusableRemodelingSample();
         // services.AddReusableSchemaIntegrationSample();
+        // services.AddTransient<ContentItemDirectorBase, SamplePageToWidgetDirector>();
+        // services.AddTransient<ContentItemDirectorBase, SampleChildLinkDirector>();
         return services;
     }
 }
